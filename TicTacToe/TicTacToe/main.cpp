@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <memory>
 using namespace std;
 
 class Board {
@@ -49,8 +52,6 @@ public:
     void reset() {
         board = { {' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '} };
     }
-
-
 };
 
 class Player {
@@ -88,6 +89,8 @@ public:
     }
 };
 
+enum GameMode { HumanVsHuman, HumanVsComputer, ComputerVsComputer };
+
 class Game {
 private:
     void takeTurn() {
@@ -108,23 +111,23 @@ private:
     Player* currentPlayer;
     bool gameOver;
 public:
-    Game() : currentPlayer(nullptr), gameOver(false) {
+    Game(GameMode mode) : currentPlayer(nullptr), gameOver(false) {
         board.reset();
-    }
-
-    void start() {
-        char choice;
-        cout << "Do you want to play against the computer? (y/n): ";
-        cin >> choice;
-        if (choice == 'y' || choice == 'Y') {
-            player1 = make_unique<HumanPlayer>('X');
-            player2 = make_unique<ComputerPlayer>('O');
-        }
-        else {
+        if (mode == HumanVsHuman) {
             player1 = make_unique<HumanPlayer>('X');
             player2 = make_unique<HumanPlayer>('O');
         }
+        else if (mode == HumanVsComputer) {
+            player1 = make_unique<HumanPlayer>('X');
+            player2 = make_unique<ComputerPlayer>('O');
+        }
+        else if (mode == ComputerVsComputer) {
+            player1 = make_unique<ComputerPlayer>('X');
+            player2 = make_unique<ComputerPlayer>('O');
+        }
+    }
 
+    void start() {
         while (!gameOver) {
             currentPlayer = (currentPlayer == player1.get()) ? player2.get() : player1.get();
             takeTurn();
@@ -142,7 +145,30 @@ public:
 };
 
 int main() {
-    Game game;
+    char choice;
+    cout << "Cac che do choi:\n";
+    cout << "1. Nguoi vs Nguoi\n";
+    cout << "2. Nguoi vs May\n";
+    cout << "3. May vs May\n";
+    cout << "Chon che do (1, 2, or 3): ";
+    cin >> choice;
+    GameMode mode;
+    switch (choice) {
+    case '1':
+        mode = HumanVsHuman;
+        break;
+    case '2':
+        mode = HumanVsComputer;
+        break;
+    case '3':
+        mode = ComputerVsComputer;
+        break;
+    default:
+        cout << "Lua chon khong hop le...\n";
+        return 1;
+    }
+    srand(time(nullptr)); // Seed the random number generator
+    Game game(mode);
     game.start();
     return 0;
 }
