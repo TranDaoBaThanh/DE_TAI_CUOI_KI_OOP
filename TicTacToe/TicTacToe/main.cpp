@@ -52,6 +52,23 @@ public:
     void reset() {
         board = { {' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '} };
     }
+
+    char getCell(int row, int col) const {
+        return board[row][col];
+    }
+
+    bool checkRow(int row, char marker) const {
+        return (board[row][0] == marker && board[row][1] == marker && board[row][2] == marker);
+    }
+
+    bool checkColumn(int col, char marker) const {
+        return (board[0][col] == marker && board[1][col] == marker && board[2][col] == marker);
+    }
+
+    bool checkDiagonal(char marker) const {
+        return ((board[0][0] == marker && board[1][1] == marker && board[2][2] == marker) ||
+            (board[0][2] == marker && board[1][1] == marker && board[2][0] == marker));
+    }
 };
 
 class Player {
@@ -80,14 +97,76 @@ public:
 };
 
 class ComputerPlayer : public Player {
+private:
+    const Board& board; // Reference to the game board
 public:
-    ComputerPlayer(char marker) : Player(marker) {}
+    ComputerPlayer(char marker, const Board& gameBoard) : Player(marker), board(gameBoard) {}
 
     int getMove() const override {
-        // Simulate a simple AI move
-        return rand() % 9 + 1;
+        // Check for winning moves
+        for (int move = 1; move <= 9; ++move) {
+            if (isValidMove(move)) {
+                if (isWinningMove(move))
+                    return move;
+            }
+        }
+
+        // Check for blocking opponent's winning moves
+        char opponentMarker = (marker == 'X') ? 'O' : 'X';
+        for (int move = 1; move <= 9; ++move) {
+            if (isValidMove(move)) {
+                if (isWinningMove(move, opponentMarker))
+                    return move;
+            }
+        }
+
+        // Prioritize center and corners
+        vector<int> preferredMoves = { 5, 1, 3, 7, 9 };
+        for (int move : preferredMoves) {
+            if (isValidMove(move))
+                return move;
+        }
+
+        // Randomize remaining moves
+        int move;
+        do {
+            move = rand() % 9 + 1;
+        } while (!isValidMove(move));
+
+        return move;
+    }
+
+private:
+    bool isValidMove(int move) const {
+        int row = (move - 1) / 3;
+        int col = (move - 1) % 3;
+        return (move >= 1 && move <= 9 && board.getCell(row, col) == ' ');
+    }
+
+    bool isWinningMove(int move, char playerMarker = ' ') const {
+        if (playerMarker == ' ')
+            playerMarker = marker;
+
+        int row = (move - 1) / 3;
+        int col = (move - 1) % 3;
+
+        // Check row
+        if (board.checkRow(row, playerMarker))
+            return true;
+
+        // Check column
+        if (board.checkColumn(col, playerMarker))
+            return true;
+
+        // Check diagonals
+        if ((row == col && board.checkDiagonal(playerMarker)) ||
+            (row + col == 2 && board.checkDiagonal(playerMarker)))
+            return true;
+
+        return false;
     }
 };
+
 
 enum GameMode { HumanVsHuman, HumanVsComputer, ComputerVsComputer };
 
@@ -111,7 +190,7 @@ private:
     Player* currentPlayer;
     bool gameOver;
 public:
-    Game(GameMode mode) : currentPlayer(nullptr), gameOver(false) {
+    Game(GameMode mode) : currentPlayer(nullptr), gameOver(false), board() {
         board.reset();
         if (mode == HumanVsHuman) {
             player1 = make_unique<HumanPlayer>('X');
@@ -119,11 +198,11 @@ public:
         }
         else if (mode == HumanVsComputer) {
             player1 = make_unique<HumanPlayer>('X');
-            player2 = make_unique<ComputerPlayer>('O');
+            player2 = make_unique<ComputerPlayer>('O', board); // Pass board reference
         }
         else if (mode == ComputerVsComputer) {
-            player1 = make_unique<ComputerPlayer>('X');
-            player2 = make_unique<ComputerPlayer>('O');
+            player1 = make_unique<ComputerPlayer>('X', board);
+            player2 = make_unique<ComputerPlayer>('O', board);
         }
     }
 
@@ -171,6 +250,4 @@ int main() {
     Game game(mode);
     game.start();
     return 0;
-
-    //test
 }
