@@ -171,4 +171,6 @@ int main() {
     Game game(mode);
     game.start();
     return 0;
+
+    //test
 }
