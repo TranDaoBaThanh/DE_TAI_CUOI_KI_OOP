@@ -22,19 +22,19 @@ public:
 
     bool placeMarker(int position, char marker) {
         if (position < 1 || position > 9 || board[(position - 1) / 3][(position - 1) % 3] != ' ') {
-            return false; // Invalid move
+            return false; 
         }
         board[(position - 1) / 3][(position - 1) % 3] = marker;
         return true;
     }
 
     bool checkWin(char marker) const {
-        // Check rows and columns
+        
         for (int i = 0; i < 3; ++i) {
             if (board[i][0] == marker && board[i][1] == marker && board[i][2] == marker) return true;
             if (board[0][i] == marker && board[1][i] == marker && board[2][i] == marker) return true;
         }
-        // Check diagonals
+        
         if (board[0][0] == marker && board[1][1] == marker && board[2][2] == marker) return true;
         if (board[0][2] == marker && board[1][1] == marker && board[2][0] == marker) return true;
         return false;
@@ -98,12 +98,12 @@ public:
 
 class ComputerPlayer : public Player {
 private:
-    const Board& board; // Reference to the game board
+    const Board& board;
 public:
     ComputerPlayer(char marker, const Board& gameBoard) : Player(marker), board(gameBoard) {}
 
     int getMove() const override {
-        // Check for winning moves
+        
         for (int move = 1; move <= 9; ++move) {
             if (isValidMove(move)) {
                 if (isWinningMove(move))
@@ -111,7 +111,7 @@ public:
             }
         }
 
-        // Check for blocking opponent's winning moves
+        
         char opponentMarker = (marker == 'X') ? 'O' : 'X';
         for (int move = 1; move <= 9; ++move) {
             if (isValidMove(move)) {
@@ -120,14 +120,14 @@ public:
             }
         }
 
-        // Prioritize center and corners
+        
         vector<int> preferredMoves = { 5, 1, 3, 7, 9 };
         for (int move : preferredMoves) {
             if (isValidMove(move))
                 return move;
         }
 
-        // Randomize remaining moves
+        
         int move;
         do {
             move = rand() % 9 + 1;
@@ -147,24 +147,24 @@ private:
         if (playerMarker == ' ')
             playerMarker = marker;
 
-        char opponentMarker = (playerMarker == 'X') ? 'O' : 'X'; // Determine the opponent's marker
+        char opponentMarker = (playerMarker == 'X') ? 'O' : 'X';
 
         int row = (move - 1) / 3;
         int col = (move - 1) % 3;
 
-        // Check if the move blocks the opponent's winning moves in rows, columns, or diagonals
+        
         Board tempBoard = board;
-        tempBoard.placeMarker(move, opponentMarker); // Simulate opponent's move
+        tempBoard.placeMarker(move, opponentMarker);
 
-        // Check row
+        
         if (tempBoard.checkRow(row, opponentMarker))
             return true;
 
-        // Check column
+        
         if (tempBoard.checkColumn(col, opponentMarker))
             return true;
 
-        // Check diagonals
+        
         if ((row == col && tempBoard.checkDiagonal(opponentMarker)) ||
             (row + col == 2 && tempBoard.checkDiagonal(opponentMarker)))
             return true;
@@ -205,7 +205,7 @@ public:
         }
         else if (mode == HumanVsComputer) {
             player1 = make_unique<HumanPlayer>('X');
-            player2 = make_unique<ComputerPlayer>('O', board); // Pass board reference
+            player2 = make_unique<ComputerPlayer>('O', board);
         }
         else if (mode == ComputerVsComputer) {
             player1 = make_unique<ComputerPlayer>('X', board);
