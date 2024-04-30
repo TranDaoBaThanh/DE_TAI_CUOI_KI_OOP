@@ -1,3 +1,3 @@
 ﻿  main.cpp
-C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(170,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(256,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   TicTacToe.vcxproj -> C:\Users\dell-hts\Source\Repos\DE_TAI_CUOI_KI_OOP\TicTacToe\x64\Debug\TicTacToe.exe

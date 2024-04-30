@@ -147,24 +147,31 @@ private:
         if (playerMarker == ' ')
             playerMarker = marker;
 
+        char opponentMarker = (playerMarker == 'X') ? 'O' : 'X'; // Determine the opponent's marker
+
         int row = (move - 1) / 3;
         int col = (move - 1) % 3;
 
+        // Check if the move blocks the opponent's winning moves in rows, columns, or diagonals
+        Board tempBoard = board;
+        tempBoard.placeMarker(move, opponentMarker); // Simulate opponent's move
+
         // Check row
-        if (board.checkRow(row, playerMarker))
+        if (tempBoard.checkRow(row, opponentMarker))
             return true;
 
         // Check column
-        if (board.checkColumn(col, playerMarker))
+        if (tempBoard.checkColumn(col, opponentMarker))
             return true;
 
         // Check diagonals
-        if ((row == col && board.checkDiagonal(playerMarker)) ||
-            (row + col == 2 && board.checkDiagonal(playerMarker)))
+        if ((row == col && tempBoard.checkDiagonal(opponentMarker)) ||
+            (row + col == 2 && tempBoard.checkDiagonal(opponentMarker)))
             return true;
 
         return false;
     }
+
 };
 
 
