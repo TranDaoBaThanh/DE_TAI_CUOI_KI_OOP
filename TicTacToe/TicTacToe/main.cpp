@@ -3,21 +3,78 @@
 #include <cstdlib>
 #include <ctime>
 #include <memory>
+#include <Windows.h>
 using namespace std;
+
+void setPosition(int x, int y)
+{
+    COORD CursorPosition;
+    CursorPosition.X = x;
+    CursorPosition.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), CursorPosition);
+}
+
+// Function to set the text color
+void textColor(int color)
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
+
+void printCentered(string text) {
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    int columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+
+    int pos = (columns - text.length()) / 2;
+    for (int i = 0; i < pos; ++i) {
+        cout << " ";
+    }
+    cout << text << endl;
+}
+
+
 
 class Board {
 private:
     vector<vector<char>> board = { {' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '} };
 public:
     void draw() const {
+
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+
+        int startX = (consoleWidth - 13) / 2;
+        int startY = (consoleHeight - 7) / 2; 
+
+
+        setPosition(startX, startY);
+
+        // Draw the board
         cout << "-------------" << endl;
         for (int i = 0; i < 3; ++i) {
+            setPosition(startX, startY + i * 2 + 1);
             cout << "| ";
             for (int j = 0; j < 3; ++j) {
-                cout << board[i][j] << " | ";
+                setMarkerColor(board[i][j]);
+                cout << board[i][j] << " ";
+                textColor(15);
+                cout << "| ";
             }
-            cout << endl << "-------------" << endl;
+            cout << endl;
+            setPosition(startX, startY + i * 2 + 2);
+            cout << "-------------" << endl;
         }
+    }
+
+    void setMarkerColor(char marker) const {
+        if (marker == 'X')
+            textColor(9); 
+        else if (marker == 'O')
+            textColor(12);
     }
 
     bool placeMarker(int position, char marker) {
@@ -90,6 +147,18 @@ public:
 
     int getMove() const override {
         int move;
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+
+        int startX = (consoleWidth - 13) / 2;
+        int startY = (consoleHeight - 7) / 2;
+
+
+        setPosition(startX - 5, startY + 7);
+
         cout << "Enter your move (1-9): ";
         cin >> move;
         return move;
@@ -183,13 +252,17 @@ private:
         int move;
         bool validMove = false;
         do {
+            Sleep(200);
             move = currentPlayer->getMove();
             validMove = board.placeMarker(move, currentPlayer->getMarker());
             if (!validMove) {
                 cout << "Invalid move. Try again." << endl;
             }
+            
         } while (!validMove);
     }
+
+
 
     Board board;
     unique_ptr<Player> player1;
@@ -215,46 +288,123 @@ public:
 
     void start() {
         while (!gameOver) {
+            system("cls");
+
+            board.draw();
+
             currentPlayer = (currentPlayer == player1.get()) ? player2.get() : player1.get();
             takeTurn();
+
+
+            system("cls");
             board.draw();
+
             if (board.checkWin(currentPlayer->getMarker())) {
-                cout << "Player " << currentPlayer->getMarker() << " wins!" << endl;
+                textColor(6);
+                setPosition(52, 5);
+                cout << "!!!Player " << currentPlayer->getMarker() << " wins!!!" << endl;
                 gameOver = true;
+                setPosition(42, 8);
+                cout << "Press Enter to return to the main menu...";
+                while (true) {
+                    system("pause>nul");
+                    if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+                        system("cls");
+                        break;
+                    }
+                }
             }
             else if (board.isFull()) {
-                cout << "It's a tie!" << endl;
+                textColor(6);
+                setPosition(52, 5);
+                cout << "!!!It's a tie!!!" << endl;
                 gameOver = true;
+
+                setPosition(42, 8);
+                cout << "Press Enter to return to the main menu...";
+                while (true) {
+                    system("pause>nul");
+                    if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+                        system("cls");
+                        break;
+                    }
+                }
             }
         }
     }
 };
 
+
+
+
+
 int main() {
-    char choice;
-    cout << "Cac che do choi:\n";
-    cout << "1. Nguoi vs Nguoi\n";
-    cout << "2. Nguoi vs May\n";
-    cout << "3. May vs May\n";
-    cout << "Chon che do (1, 2, or 3): ";
-    cin >> choice;
-    GameMode mode;
-    switch (choice) {
-    case '1':
-        mode = HumanVsHuman;
-        break;
-    case '2':
-        mode = HumanVsComputer;
-        break;
-    case '3':
-        mode = ComputerVsComputer;
-        break;
-    default:
-        cout << "Lua chon khong hop le...\n";
-        return 1;
+    while (true) {
+        vector<string> options = { "Nguoi vs Nguoi", "Nguoi vs May", "May vs May" };
+        int selectedIndex = 0;
+        int yCord = 12;
+
+        while (true) {
+            system("cls");
+            textColor(11);
+            setPosition(42, 10); cout << "* * * * * * * CAC CHE DO CHOI * * * * * * * ";
+            for (int i = 11; i <= 17; ++i) {
+                setPosition(42, i); cout << "*";
+            }
+            for (int i = 11; i <= 17; ++i) {
+                setPosition(84, i); cout << "*";
+            }
+            setPosition(42, 17); cout << "* * * * * * * * * * * * * * * * * * * * * *";
+
+            for (int i = 0; i < options.size(); ++i) {
+                if (i == selectedIndex) textColor(10);
+                else textColor(15);
+                setPosition(55, yCord + i);
+                cout << options[i];
+            }
+
+            while (true) {
+                system("pause>nul");
+                if (GetAsyncKeyState(VK_UP) & 0x8000) {
+                    selectedIndex = (selectedIndex - 1 + options.size()) % options.size();
+                    break;
+                }
+                
+                if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+                    selectedIndex = (selectedIndex + 1) % options.size();
+                    break;
+                }
+                
+                if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+                    system("cls");
+                    break;
+                }
+
+            }
+            if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+                break;
+            }
+        }
+
+        GameMode mode;
+        switch (selectedIndex) {
+        case 0:
+            mode = HumanVsHuman;
+            break;
+        case 1:
+            mode = HumanVsComputer;
+            break;
+        case 2:
+            mode = ComputerVsComputer;
+            break;
+        default:
+            cout << "Lua chon khong hop le...\n";
+            return 1;
+        }
+        srand(time(nullptr)); // Seed the random number generator
+
+        Game game(mode);
+        game.start();
     }
-    srand(time(nullptr)); // Seed the random number generator
-    Game game(mode);
-    game.start();
     return 0;
 }
