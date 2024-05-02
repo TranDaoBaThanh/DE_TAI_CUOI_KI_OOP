@@ -1,5 +1,5 @@
 ﻿  main.cpp
 C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(29,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(369,74): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(404,19): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(397,74): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dell-hts\source\repos\DE_TAI_CUOI_KI_OOP\TicTacToe\TicTacToe\main.cpp(432,19): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   TicTacToe.vcxproj -> C:\Users\dell-hts\Source\Repos\DE_TAI_CUOI_KI_OOP\TicTacToe\x64\Debug\TicTacToe.exe

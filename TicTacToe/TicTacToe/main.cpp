@@ -142,25 +142,53 @@ public:
 };
 
 class HumanPlayer : public Player {
+private:
+    const Board& board; 
 public:
-    HumanPlayer(char marker) : Player(marker) {}
+    HumanPlayer(char marker, const Board& gameBoard) : Player(marker), board(gameBoard) {}
 
     int getMove() const override {
         int move;
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        bool validMove = false;
+        while (!validMove) {
+            CONSOLE_SCREEN_BUFFER_INFO csbi;
+            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+            int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+            int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 
 
-        int startX = (consoleWidth - 13) / 2;
-        int startY = (consoleHeight - 7) / 2;
+            int startX = (consoleWidth - 13) / 2;
+            int startY = (consoleHeight - 7) / 2;
 
 
-        setPosition(startX - 5, startY + 7);
-
-        cout << "Enter your move (1-9): ";
-        cin >> move;
+            setPosition(startX - 5, startY + 7);
+            cout << "Enter your move (1-9): ";
+            if (!(cin >> move)) {
+                
+                cin.clear();
+                while (cin.get() != '\n');
+                setPosition(startX -9, startY + 9);
+                textColor(14);
+                cout << "Invalid input. Please enter a number." << endl;
+            }
+            else if (move < 1 || move > 9) {
+                setPosition(startX - 9, startY + 9);
+                textColor(14);
+                cout << "Invalid move. Move must be between 1 and 9." << endl;
+            }
+            else {
+                int row = (move - 1) / 3;
+                int col = (move - 1) % 3;
+                if (board.getCell(row, col) != ' ') {
+                    setPosition(startX - 9, startY + 9);
+                    textColor(14);
+                    cout << "Invalid move. Cell is already occupied." << endl;
+                }
+                else {
+                    validMove = true;
+                }
+            }
+        }
         return move;
     }
 };
@@ -273,11 +301,11 @@ public:
     Game(GameMode mode) : currentPlayer(nullptr), gameOver(false), board() {
         board.reset();
         if (mode == HumanVsHuman) {
-            player1 = make_unique<HumanPlayer>('X');
-            player2 = make_unique<HumanPlayer>('O');
+            player1 = make_unique<HumanPlayer>('X', board);
+            player2 = make_unique<HumanPlayer>('O', board);
         }
         else if (mode == HumanVsComputer) {
-            player1 = make_unique<HumanPlayer>('X');
+            player1 = make_unique<HumanPlayer>('X', board);
             player2 = make_unique<ComputerPlayer>('O', board);
         }
         else if (mode == ComputerVsComputer) {
