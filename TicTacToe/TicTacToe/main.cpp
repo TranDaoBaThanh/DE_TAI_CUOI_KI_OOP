@@ -14,7 +14,6 @@ void setPosition(int x, int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), CursorPosition);
 }
 
-// Function to set the text color
 void textColor(int color)
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -429,7 +428,7 @@ int main() {
             cout << "Lua chon khong hop le...\n";
             return 1;
         }
-        srand(time(nullptr)); // Seed the random number generator
+        srand(time(nullptr));
 
         Game game(mode);
         game.start();
